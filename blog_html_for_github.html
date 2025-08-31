@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Blog Personal 😊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '😊';
+            position: absolute;
+            top: 15px;
+            right: 30px;
+            font-size: 2em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px;
+            background: #f8fffe;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+        }
+
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(255, 154, 158, 0.4);
+        }
+
+        .btn-new {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            display: none;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(168, 237, 234, 0.4);
+        }
+
+        .btn-new.visible {
+            display: inline-block;
+        }
+
+        .admin-status {
+            background: #4ecdc4;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .admin-status.visible {
+            display: inline-block;
+        }
+
+        .posts-container {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .post {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            animation: postSlideIn 0.6s ease-out;
+        }
+
+        @keyframes postSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .post:hover {
+            transform: translateY(-5px);
+        }
+
+        .post-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .post-image:hover {
+            transform: scale(1.05);
+        }
+
+        .post-content {
+            padding: 20px;
+        }
+
+        .post-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .post-text {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .post-date {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            float: right;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .delete-btn.visible {
+            display: inline-block;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #4ecdc4;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-submit:hover,
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #e74c3c;
+        }
+
+        /* Image Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .image-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .image-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        .image-close:hover {
+            color: #ff6b6b;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mi Blog Personal</h1>
+            <p class="subtitle">Compartiendo mis pensamientos y momentos especiales</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-admin" onclick="checkAdmin()">🔐 Comprobar Admin</button>
+            <button class="btn btn-new" id="newPostBtn" onclick="showNewPostModal()">📝 Nueva Publicación</button>
+            <div class="admin-status" id="adminStatus">
+                ✅ Modo Administrador Activo
+            </div>
+        </div>
+        
+        <div class="posts-container" id="postsContainer">
+            <div class="empty-state">
+                <h3>¡Bienvenido a mi blog! 😊</h3>
+                <p>Aquí compartiré mis ideas, experiencias y momentos especiales.</p>
+                <p>¡Pronto habrá contenido nuevo!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAdminModal()">&times;</span>
+            <div class="modal-header">
+                <h2>🔐 Acceso de Administrador</h2>
+                <p>Introduce la contraseña para acceder al modo edición</p>
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Contraseña:</label>
+                <input type="password" id="adminPassword" placeholder="Escribe la contraseña...">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-submit" onclick="verifyAdmin()">🔓 Acceder</button>
+                <button class="btn btn-cancel" onclick="closeAdminModal()">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Post Modal -->
+    <div id="newPostModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNewPostModal()">&times;</span>
+            <div class="modal-header">
+                <h2>📝 Nueva Publicación</h2>
+                <p>Crea una nueva entrada para tu blog</p>
+            </div>
+            <form id="newPostForm">
+                <div class="form-group">
+                    <label for="postTitle">Título:</label>
+                    <input type="text" id="postTitle" placeholder="Escribe el título de tu publicación..." required>
+                </div>
+                <div class="form-group">
+                    <label for="postImage">Imagen:</label>
+                    <input type="file" id="postImage" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="postText">Contenido:</label>
+                    <textarea id="postText" placeholder="Escribe el contenido de tu publicación..." required></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-submit" onclick="publishPost()">🚀 Publicar</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeNewPostModal()">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="image-close" onclick="closeImageModal()">&times;</span>
+        <img class="image-modal-content" id="modalImage">
+    </div>
+
+    <script>
+        let isAdmin = false;
+        let posts = [];
+
+        // Load posts from localStorage on page load
+        function loadPosts() {
+            try {
+                const savedPosts = localStorage.getItem('blogPosts');
+                posts = savedPosts ? JSON.parse(savedPosts) : [];
+            } catch (error) {
+                posts = [];
+            }
+        }
+
+        // Save posts to localStorage
+        function savePosts() {
+            try {
+                localStorage.setItem('blogPosts', JSON.stringify(posts));
+            } catch (error) {
+                // Fallback to memory if localStorage fails
+                window.blogPosts = posts;
+            }
+        }
+
+        // Admin Functions
+        function checkAdmin() {
+            document.getElementById('adminModal').style.display = 'block';
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function verifyAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === 'oriente14') {
+                isAdmin = true;
+                document.getElementById('newPostBtn').classList.add('visible');
+                document.getElementById('adminStatus').classList.add('visible');
+                closeAdminModal();
+                updatePostsDisplay();
+                
+                // Success animation
+                const adminStatus = document.getElementById('adminStatus');
+                adminStatus.style.animation = 'bounce 0.6s ease-out';
+                
+                alert('🎉 ¡Acceso concedido! Ahora puedes crear y eliminar publicaciones.');
+            } else {
+                alert('❌ Contraseña incorrecta. Inténtalo de nuevo.');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        // New Post Functions
+        function showNewPostModal() {
+            document.getElementById('newPostModal').style.display = 'block';
+            document.getElementById('postTitle').focus();
+        }
+
+        function closeNewPostModal() {
+            document.getElementById('newPostModal').style.display = 'none';
+            document.getElementById('newPostForm').reset();
+        }
+
+        // New simplified publish function
+        function publishPost() {
+            // Get form values
+            const title = document.getElementById('postTitle').value.trim();
+            const text = document.getElementById('postText').value.trim();
+            const imageFile = document.getElementById('postImage').files[0];
+            
+            // Validate fields
+            if (!title) {
+                alert('⚠️ Por favor, escribe un título.');
+                document.getElementById('postTitle').focus();
+                return;
+            }
+            
+            if (!text) {
+                alert('⚠️ Por favor, escribe el contenido.');
+                document.getElementById('postText').focus();
+                return;
+            }
+            
+            if (!imageFile) {
+                alert('⚠️ Por favor, selecciona una imagen.');
+                document.getElementById('postImage').focus();
+                return;
+            }
+            
+            // Show processing message
+            const publishBtn = document.querySelector('.btn-submit');
+            publishBtn.innerHTML = '⏳ Publicando...';
+            publishBtn.disabled = true;
+            
+            // Read the image file
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Create new post object
+                const newPost = {
+                    id: Date.now(),
+                    title: title,
+                    text: text,
+                    image: e.target.result,
+                    date: new Date().toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                };
+                
+                // Add to posts array at the beginning
+                posts.unshift(newPost);
+                
+                // Save posts
+                savePosts();
+                
+                // Update display
+                updatePostsDisplay();
+                
+                // Reset form and close modal
+                document.getElementById('newPostForm').reset();
+                closeNewPostModal();
+                
+                // Reset button
+                publishBtn.innerHTML = '🚀 Publicar';
+                publishBtn.disabled = false;
+                
+                // Show success message
+                alert('🎉 ¡Publicación creada exitosamente! Ya es visible para todos los visitantes.');
+            };
+            
+            reader.onerror = function() {
+                alert('❌ Error al procesar la imagen. Inténtalo con otra imagen.');
+                publishBtn.innerHTML = '🚀 Publicar';
+                publishBtn.disabled = false;
+            };
+            
+            // Start reading the file
+            reader.readAsDataURL(imageFile);
+        }
+
+        // Delete post function
+        function deletePost(postId) {
+            if (confirm('🗑️ ¿Estás seguro de que quieres eliminar esta publicación?')) {
+                posts = posts.filter(post => post.id !== postId);
+                savePosts(); // Save to localStorage after deletion
+                updatePostsDisplay();
+                alert('✅ Publicación eliminada exitosamente.');
+            }
+        }
+
+        // Update posts display
+        function updatePostsDisplay() {
+            const container = document.getElementById('postsContainer');
+            
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>¡Bienvenido a mi blog! 😊</h3>
+                        <p>Aquí compartiré mis ideas, experiencias y momentos especiales.</p>
+                        <p>¡Pronto habrá contenido nuevo!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = posts.map(post => `
+                <div class="post">
+                    <img src="${post.image}" alt="${post.title}" class="post-image" onclick="showImage('${post.image}')">
+                    <div class="post-content">
+                        <h3 class="post-title">${post.title}</h3>
+                        <p class="post-text">${post.text}</p>
+                        <p class="post-date">📅 ${post.date}</p>
+                        <button class="delete-btn ${isAdmin ? 'visible' : ''}" onclick="deletePost(${post.id})">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Image modal functions
+        function showImage(imageSrc) {
+            document.getElementById('modalImage').src = imageSrc;
+            document.getElementById('imageModal').style.display = 'block';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const adminModal = document.getElementById('adminModal');
+            const newPostModal = document.getElementById('newPostModal');
+            const imageModal = document.getElementById('imageModal');
+            
+            if (event.target === adminModal) {
+                closeAdminModal();
+            }
+            if (event.target === newPostModal) {
+                closeNewPostModal();
+            }
+            if (event.target === imageModal) {
+                closeImageModal();
+            }
+        }
+
+        // Handle Enter key in admin password field
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyAdmin();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPosts(); // Load existing posts first
+            updatePostsDisplay();
+        });
+    </script>
+</body>
+</html>
